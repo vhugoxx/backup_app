@@ -1,0 +1,65 @@
+{
+  "categories": {
+    "Modelos 3D": [
+      "step",
+      "stp",
+      "x_t",
+      "igs",
+      "stl",
+      "obj"
+    ],
+    "Documentos": [
+      "doc",
+      "docx",
+      "xls",
+      "xlsx",
+      "ppt",
+      "pptx",
+      "pdf",
+      "txt",
+      "rtf"
+    ],
+    "Imagens": [
+      "jpg",
+      "jpeg",
+      "png",
+      "tif",
+      "bmp",
+      "gif",
+      "raw"
+    ],
+    "Áudio": [
+      "mp3",
+      "wav",
+      "flac",
+      "aac",
+      "ogg"
+    ],
+    "Vídeo": [
+      "mp4",
+      "mov",
+      "avi",
+      "mkv",
+      "wmv"
+    ],
+    "Arquivos": [
+      "zip",
+      "rar",
+      "7z",
+      "tar",
+      "gz",
+      "iso"
+    ],
+    "Código-fonte": [
+      "py",
+      "js",
+      "cpp",
+      "c",
+      "java",
+      "html",
+      "css",
+      "json",
+      "xml"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "src":        "C:/…",
+  "dst":        "H:/…",
+  "recursive":  true,
+  "preserve":   true,
+  "exts":       ["jpg","png","pdf"],
+  "geometry":   [760,560,100,100]   # w,h,x,y
+}

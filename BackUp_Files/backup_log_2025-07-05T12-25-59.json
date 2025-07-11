@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-07-05T12:25:59",
+  "source": "D:\\",
+  "dest": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files",
+  "types": [
+    "x_t"
+  ],
+  "copied_ok": 17,
+  "failed": 0,
+  "errors": [],
+  "duration_sec": 2.37
+}

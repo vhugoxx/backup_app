@@ -1,0 +1,206 @@
+{
+  "timestamp": "2025-07-11T03:58:04",
+  "source": "D:\\Users",
+  "dest": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files",
+  "types": [
+    "jpeg",
+    "jpg"
+  ],
+  "copied_ok": 29,
+  "failed": 8,
+  "bytes_copied": 1084740,
+  "bytes_total": 18406662,
+  "duration_sec": 0.16,
+  "duration": "0:00:00",
+  "copied": [
+    {
+      "src": "D:\\Users\\berna\\Desktop\\IBORE\\Produção\\DIVERSOS\\maq. 2 (medidas).jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\IBORE\\Produção\\DIVERSOS\\maq. 2 (medidas).jpg",
+      "size": 11395
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\IBORE\\Produção\\DIVERSOS\\maq. 2 (medidas.).jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\IBORE\\Produção\\DIVERSOS\\maq. 2 (medidas.).jpg",
+      "size": 9224
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\LEBiomIST\\1ANO\\algebra\\Testes_Exames\\2teste_vA_1617.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\LEBiomIST\\1ANO\\algebra\\Testes_Exames\\2teste_vA_1617.jpg",
+      "size": 89390
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\Delcam PowerMill 10 SP5\\Delcam_SSQ.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\Delcam PowerMill 10 SP5\\Delcam_SSQ.jpg",
+      "size": 517824
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\DelcamLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\DelcamLogo.jpg",
+      "size": 5907
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\DelcamLogo_small.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\DelcamLogo_small.jpg",
+      "size": 8208
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\DelcamLogo_xsmall.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\DelcamLogo_xsmall.jpg",
+      "size": 5907
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\PmillLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\PmillLogo.jpg",
+      "size": 12151
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\Header_files\\global\\CompanyLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\Header_files\\global\\CompanyLogo.jpg",
+      "size": 3774
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\Header_files\\global\\DelcamLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\Header_files\\global\\DelcamLogo.jpg",
+      "size": 5907
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\Header_files\\global\\PMillLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\Default\\Header_files\\global\\PMillLogo.jpg",
+      "size": 12151
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\DelcamLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\DelcamLogo.jpg",
+      "size": 5907
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\DelcamLogo_small.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\DelcamLogo_small.jpg",
+      "size": 8208
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\DelcamLogo_xsmall.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\DelcamLogo_xsmall.jpg",
+      "size": 5907
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\PmillLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\PmillLogo.jpg",
+      "size": 12151
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\Header_files\\global\\CompanyLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\Header_files\\global\\CompanyLogo.jpg",
+      "size": 3774
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\Header_files\\global\\DelcamLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\Header_files\\global\\DelcamLogo.jpg",
+      "size": 5907
+    },
+    {
+      "src": "D:\\Users\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\Header_files\\global\\PMillLogo.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Desktop\\PowerMill_10_SP5\\posprocessador\\plasglass\\dcam\\config\\pmil4\\folhas velhas\\Default old\\Header_files\\global\\PMillLogo.jpg",
+      "size": 12151
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image1080.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image1080.jpg",
+      "size": 185987
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image192.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image192.jpg",
+      "size": 15316
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image208.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image208.jpg",
+      "size": 17787
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image240.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image240.jpg",
+      "size": 21966
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image32.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image32.jpg",
+      "size": 1342
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image40.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image40.jpg",
+      "size": 1766
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image424.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image424.jpg",
+      "size": 52617
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image448.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image448.jpg",
+      "size": 43609
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image48.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image48.jpg",
+      "size": 2067
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image64.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image64.jpg",
+      "size": 2756
+    },
+    {
+      "src": "D:\\Users\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image96.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\Public\\AccountPictures\\S-1-5-21-2661706567-2430995069-322416464-1001\\{7E660827-2FF7-43B5-9DAD-EBBCDEBF0C4C}-Image96.jpg",
+      "size": 3684
+    }
+  ],
+  "errors": [
+    {
+      "src": "D:\\Users\\berna\\Downloads\\earth-1756274_1280.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Downloads\\earth-1756274_1280.jpg",
+      "error": "[Errno 13] Permission denied: 'D:\\\\Users\\\\berna\\\\Downloads\\\\earth-1756274_1280.jpg'"
+    },
+    {
+      "src": "D:\\Users\\berna\\Downloads\\IMG-8211.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Downloads\\IMG-8211.jpg",
+      "error": "[Errno 13] Permission denied: 'D:\\\\Users\\\\berna\\\\Downloads\\\\IMG-8211.jpg'"
+    },
+    {
+      "src": "D:\\Users\\berna\\Downloads\\IMG-8212.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Downloads\\IMG-8212.jpg",
+      "error": "[Errno 13] Permission denied: 'D:\\\\Users\\\\berna\\\\Downloads\\\\IMG-8212.jpg'"
+    },
+    {
+      "src": "D:\\Users\\berna\\Downloads\\IMG-8213.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Downloads\\IMG-8213.jpg",
+      "error": "[Errno 13] Permission denied: 'D:\\\\Users\\\\berna\\\\Downloads\\\\IMG-8213.jpg'"
+    },
+    {
+      "src": "D:\\Users\\berna\\Downloads\\istockphoto-498309616-1024x1024.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Downloads\\istockphoto-498309616-1024x1024.jpg",
+      "error": "[Errno 13] Permission denied: 'D:\\\\Users\\\\berna\\\\Downloads\\\\istockphoto-498309616-1024x1024.jpg'"
+    },
+    {
+      "src": "D:\\Users\\berna\\Downloads\\pexels-stein-egil-liland-3374210.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Downloads\\pexels-stein-egil-liland-3374210.jpg",
+      "error": "[Errno 13] Permission denied: 'D:\\\\Users\\\\berna\\\\Downloads\\\\pexels-stein-egil-liland-3374210.jpg'"
+    },
+    {
+      "src": "D:\\Users\\berna\\Downloads\\pexels-tobias-bjørkli-1938348.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Downloads\\pexels-tobias-bjørkli-1938348.jpg",
+      "error": "[Errno 13] Permission denied: 'D:\\\\Users\\\\berna\\\\Downloads\\\\pexels-tobias-bjørkli-1938348.jpg'"
+    },
+    {
+      "src": "D:\\Users\\berna\\Downloads\\pxfuel.jpg",
+      "dst": "C:\\Users\\2190807\\Desktop\\PROJETOS_PHYTON\\backup_app\\BackUp_Files\\jpg\\berna\\Downloads\\pxfuel.jpg",
+      "error": "[Errno 13] Permission denied: 'D:\\\\Users\\\\berna\\\\Downloads\\\\pxfuel.jpg'"
+    }
+  ],
+  "copied_mb": "1.0 MB",
+  "total_mb": "17.6 MB"
+}
