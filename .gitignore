@@ -3,3 +3,40 @@ core/last_session.json
 __pycache__/
 *.pyc
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Virtual envs
+venv/
+.env/
+.venv/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Backups/archives
+*.zip
+*.7z
+*.rar
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+venv/
+.env/
+.venv/
+*.zip
+*.7z
+*.rar
+.idea/
+.vscode/
+Thumbs.db
