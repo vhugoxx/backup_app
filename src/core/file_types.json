@@ -1,0 +1,8 @@
+{
+  "categories": {
+    "Documentos": ["pdf", "docx", "xlsx", "pptx"],
+    "Imagens":    ["jpg", "jpeg", "png", "gif"],
+    "3D":         ["obj", "stl", "step"],
+    "Código":     ["py", "cpp", "java", "js"]
+  }
+}
