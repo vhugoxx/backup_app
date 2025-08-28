@@ -13,7 +13,6 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
     """Gera um relatório PDF com as estatísticas do backup.
 
     O ficheiro é guardado com o nome ``backup_relatorio_<data>_<hora>.pdf``.
-
     Parameters
     ----------
     stats: Dict
