@@ -1,0 +1,8 @@
+# PDF deve ser tratado como binário (sem conversão de fim de linha)
+*.pdf binary
+
+# Logs também como binários (caso mantenhas algum)
+*.log binary
+
+# Garante que ficheiros de texto são normalizados para LF no repositório
+* text=auto
