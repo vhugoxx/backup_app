@@ -146,3 +146,24 @@ def copy_selected(
                     for inner_name, stream in iterate_archive(path, extensions):
                         # Monta destino: pasta = extensão do ficheiro interno
                         inner_ext = Path(inner_name).suffix.lstrip(".").lower() or "_sem_ext"
+                        dst_path = _dst_from_src(
+                            path.parent / inner_name,
+                            base_src,
+                            base_dst,
+                            preserve_structure,
+                            inner_ext,
+                        )
+                        _ensure_dir(dst_path)
+                        with open(dst_path, "wb") as fh:
+                            shutil.copyfileobj(stream, fh)
+                        stats["files_copied"] += 1
+                        try:
+                            stats["mb_copied"] += (dst_path.stat().st_size or 0) / (1024 * 1024)
+                        except Exception:
+                            pass
+                        _emit(log_cb, f"✔ Extraído: {path}!{inner_name} -> {dst_path}")
+                        _progress(progress_cb, 1)
+                except Exception as e:
+                    _emit(log_cb, f"❌ Erro ao extrair {path}: {e}")
+    finally:
+        delete_snapshot(snap, log_cb=log_cb)
