@@ -78,32 +78,38 @@ class MainWindow(QMainWindow):
         grid.setSpacing(8)
         self.setCentralWidget(central)
 
-        # Origem
-        grid.addWidget(QLabel("Origem:"), 0, 0)
-        self.src_edit = QLineEdit(self)
-        grid.addWidget(self.src_edit, 0, 1)
-        btn_src = QPushButton("…", self)
-        btn_src.clicked.connect(self._pick_src)
-        grid.addWidget(btn_src, 0, 2)
-
-        # Destino
-        grid.addWidget(QLabel("Destino:"), 1, 0)
-        self.dst_edit = QLineEdit(self)
-        grid.addWidget(self.dst_edit, 1, 1)
-        btn_dst = QPushButton("…", self)
-        btn_dst.clicked.connect(self._pick_dst)
-        grid.addWidget(btn_dst, 1, 2)
-
         # opções
+        self.chk_vss         = QCheckBox("Usar VSS (Windows, requer Administrador)")
+        self.chk_vss.setStyleSheet("font-weight: bold")
         self.chk_recursive   = QCheckBox("Incluir sub-pastas");   self.chk_recursive.setChecked(True)
         self.chk_preserve    = QCheckBox("Preservar estrutura");  self.chk_preserve.setChecked(True)
-        self.chk_vss         = QCheckBox("Usar VSS (Windows, requer Administrador)")
         self.chk_archives    = QCheckBox("Incluir ficheiros compactados"); self.chk_archives.setChecked(True)
 
-        row = 2
+        row = 0
+        grid.addWidget(self.chk_vss, row, 0, 1, 3); row += 1
+        grid.setRowMinimumHeight(row, 12); row += 1
+
+        # Origem
+        grid.addWidget(QLabel("Origem:"), row, 0)
+        self.src_edit = QLineEdit(self)
+        grid.addWidget(self.src_edit, row, 1)
+        btn_src = QPushButton("…", self)
+        btn_src.clicked.connect(self._pick_src)
+        grid.addWidget(btn_src, row, 2)
+        row += 1
         grid.addWidget(self.chk_recursive, row, 0, 1, 3); row += 1
+
+        # Destino
+        grid.addWidget(QLabel("Destino:"), row, 0)
+        self.dst_edit = QLineEdit(self)
+        grid.addWidget(self.dst_edit, row, 1)
+        btn_dst = QPushButton("…", self)
+        btn_dst.clicked.connect(self._pick_dst)
+        grid.addWidget(btn_dst, row, 2)
+        row += 1
         grid.addWidget(self.chk_preserve,  row, 0, 1, 3); row += 1
-        grid.addWidget(self.chk_vss,       row, 0, 1, 3); row += 1
+
+        grid.setRowMinimumHeight(row, 12); row += 1
         grid.addWidget(self.chk_archives,  row, 0, 1, 3); row += 1
 
         # tipos de arquivo suportados
