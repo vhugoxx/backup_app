@@ -134,6 +134,7 @@ class MainWindow(QMainWindow):
         self.tree.setHeaderHidden(True)
         grid.addWidget(self.tree, row, 0, 1, 3); row += 1
         self._populate_tree()
+        self.tree.itemChanged.connect(self._on_tree_item_changed)
 
         # barra progresso + log
         self.progress = QProgressBar(self); self.progress.setValue(0)
@@ -183,8 +184,21 @@ class MainWindow(QMainWindow):
                 recurse(item.child(i))
         for i in range(self.tree.topLevelItemCount()):
             recurse(self.tree.topLevelItem(i))
+        self._update_tree_expansion()
 
     # ---------- interações ----------
+    def _update_tree_expansion(self):
+        for i in range(self.tree.topLevelItemCount()):
+            top = self.tree.topLevelItem(i)
+            any_checked = any(
+                top.child(j).checkState(0) == Qt.Checked
+                for j in range(top.childCount())
+            )
+            top.setExpanded(any_checked)
+
+    def _on_tree_item_changed(self, item: QTreeWidgetItem, column: int):
+        self._update_tree_expansion()
+
     def _pick_src(self):
         p = QFileDialog.getExistingDirectory(self, "Escolher origem", str(Path.home()))
         if p:
@@ -343,8 +357,11 @@ class MainWindow(QMainWindow):
                 item.setCheckState(0, Qt.Checked)
             for i in range(item.childCount()):
                 mark(item.child(i))
+        self.tree.blockSignals(True)
         for i in range(self.tree.topLevelItemCount()):
             mark(self.tree.topLevelItem(i))
+        self.tree.blockSignals(False)
+        self._update_tree_expansion()
 
 
 # ---------- bootstrap ----------
