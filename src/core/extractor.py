@@ -2,6 +2,24 @@ from pathlib import Path
 from typing import Iterable, Iterator, Tuple
 import io, zipfile, tarfile
 
+
+def is_archive(path: Path, tipos: Iterable[str] | None = None) -> bool:
+    """Verifica se ``path`` aponta para um arquivo suportado."""
+    nome = path.name.lower()
+    suportadas = {
+        "zip",
+        "rar",
+        "7z",
+        "tar",
+        "tgz",
+        "tar.gz",
+        "tbz2",
+        "tar.bz2",
+    }
+    if tipos:
+        suportadas |= {t.lower().lstrip(".") for t in tipos}
+    return any(nome.endswith(f".{ext}") for ext in suportadas)
+
 def iterate_archive(path: Path, extensions: Iterable[str]) -> Iterator[Tuple[str, io.BufferedReader]]:
     """Gera (nome_relativo, stream) para cada ficheiro interno pretendido."""
     want = {e.lower().lstrip(".") for e in extensions}
