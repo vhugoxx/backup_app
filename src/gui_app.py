@@ -38,10 +38,12 @@ class Worker(QObject):
     def run(self):
         """Executa num QThread."""
         from src.core.copier import copy_selected  # import tardio para arrancar mais depressa
+        from datetime import datetime
 
         stats = {}
+        start = datetime.now()
+        self.log.emit(f"🕒 Início: {start.strftime('%Y-%m-%d %H:%M:%S')}")
         try:
-            self.log.emit("Iniciar backup...")
             copy_selected(
                 **self.cfg,
                 progress_cb=self.progress.emit,
@@ -52,6 +54,13 @@ class Worker(QObject):
         except Exception as e:
             self.log.emit(f"❌ Erro: {e}")
         finally:
+            end = datetime.now()
+            duration = end - start
+            stats['start_time'] = start.isoformat()
+            stats['end_time'] = end.isoformat()
+            stats['duration'] = duration.total_seconds()
+            self.log.emit(f"🕓 Fim: {end.strftime('%Y-%m-%d %H:%M:%S')}")
+            self.log.emit(f"⏱️ Tempo total: {duration}")
             if self._stop:
                 self.log.emit("⏹️  Cancelado pelo utilizador.")
             else:
@@ -157,16 +166,13 @@ class MainWindow(QMainWindow):
         btns = QHBoxLayout()
         self.btn_start = QPushButton("Iniciar")
         self.btn_cancel = QPushButton("Cancelar"); self.btn_cancel.setEnabled(False)
-        self.btn_pdf = QPushButton("Gerar PDF"); self.btn_pdf.setEnabled(False)
 
         self.btn_start.clicked.connect(self._on_start)
         self.btn_cancel.clicked.connect(self._on_cancel)
-        self.btn_pdf.clicked.connect(self._on_pdf)
 
         btns.addStretch(1)
         btns.addWidget(self.btn_start)
         btns.addWidget(self.btn_cancel)
-        btns.addWidget(self.btn_pdf)
         grid.addLayout(btns, row, 0, 1, 3)
 
     def _populate_tree(self):
@@ -274,7 +280,6 @@ class MainWindow(QMainWindow):
         self.log.clear()
         self.btn_start.setEnabled(False)
         self.btn_cancel.setEnabled(True)
-        self.btn_pdf.setEnabled(False)
         self._stats = None
 
         # arranque da thread
@@ -321,10 +326,10 @@ class MainWindow(QMainWindow):
         QMessageBox.information(self, "Resumo do backup", "Backup concluído!\n\n" + total)
         self.btn_start.setEnabled(True)
         self.btn_cancel.setEnabled(False)
-        self.btn_pdf.setEnabled(True)
         self._worker = None
         self._thread = None
         self._stats = stats
+        self._on_pdf()
 
     def _on_pdf(self):
         if not self._stats:
