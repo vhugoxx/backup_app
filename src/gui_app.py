@@ -71,6 +71,11 @@ class MainWindow(QMainWindow):
         self._build_ui()
         self._restore_session()
 
+    # ---------- eventos Qt ----------
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._update_tree_expansion()
+
     # ---------- construção UI ----------
     def _build_ui(self):
         central = QWidget(self)
