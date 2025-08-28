@@ -26,17 +26,14 @@ Thumbs.db
 *.zip
 *.7z
 *.rar
-__pycache__/
-*.py[cod]
-*.egg-info/
-build/
-dist/
-venv/
-.env/
-.venv/
-*.zip
-*.7z
-*.rar
-.idea/
-.vscode/
-Thumbs.db
+
+# Sessões locais
+.session.json
+
+# Artefactos de execução / relatórios
+Nova pasta/*.txt
+Nova pasta/*.pdf
+Nova pasta/docx/
+Nova pasta/jpeg/
+Nova pasta/jpg/
+Nova pasta/step/
