@@ -79,6 +79,8 @@ def copy_selected(
         files_denied=0,
         mb_scanned=0.0,
         mb_copied=0.0,
+        ext_counts={},
+        ext_sizes={},
     )
 
     if stop_flag is None:
@@ -121,10 +123,14 @@ def copy_selected(
                 _ensure_dir(dst_path)
                 shutil.copy2(path, dst_path)
                 stats["files_copied"] += 1
+                copied_mb = 0.0
                 try:
-                    stats["mb_copied"] += (dst_path.stat().st_size or 0) / (1024 * 1024)
+                    copied_mb = (dst_path.stat().st_size or 0) / (1024 * 1024)
+                    stats["mb_copied"] += copied_mb
                 except Exception:
                     pass
+                stats["ext_counts"][ext_folder] = stats["ext_counts"].get(ext_folder, 0) + 1
+                stats["ext_sizes"][ext_folder] = stats["ext_sizes"].get(ext_folder, 0.0) + copied_mb
                 _emit(log_cb, f"✔ Copiado: {path} -> {dst_path}")
             except PermissionError as e:
                 stats["files_denied"] += 1
@@ -163,10 +169,14 @@ def copy_selected(
                         with open(dst_path, "wb") as fh:
                             shutil.copyfileobj(stream, fh)
                         stats["files_copied"] += 1
+                        copied_mb = 0.0
                         try:
-                            stats["mb_copied"] += (dst_path.stat().st_size or 0) / (1024 * 1024)
+                            copied_mb = (dst_path.stat().st_size or 0) / (1024 * 1024)
+                            stats["mb_copied"] += copied_mb
                         except Exception:
                             pass
+                        stats["ext_counts"][inner_ext] = stats["ext_counts"].get(inner_ext, 0) + 1
+                        stats["ext_sizes"][inner_ext] = stats["ext_sizes"].get(inner_ext, 0.0) + copied_mb
                         _emit(log_cb, f"✔ Extraído: {path}!{inner_name} -> {dst_path}")
                         _progress(progress_cb, 1)
                 except Exception as e:
