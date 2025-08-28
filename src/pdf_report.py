@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Dict
-from datetime import datetime
+import datetime
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -27,7 +27,7 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
     """
     destino = Path(destino)
     destino.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     pdf_path = destino / f"backup_relatorio_{timestamp}.pdf"
 
     c = canvas.Canvas(str(pdf_path), pagesize=A4)
