@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 from typing import Dict, Set
+from datetime import datetime
 
 from PySide6.QtCore import QObject, QThread, Signal, Qt, QEvent, QSize
 from PySide6.QtGui import QAction
@@ -68,6 +69,7 @@ class MainWindow(QMainWindow):
         self._thread: QThread | None = None
         self._worker: Worker | None = None
         self.dst: str | None = None
+        self.log_file: Path | None = None
 
         self._build_ui()
         self._restore_session()
@@ -263,6 +265,8 @@ class MainWindow(QMainWindow):
         )
 
         self.dst = cfg["dst"]
+        now = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.log_file = Path(self.dst) / f"backup_log_{now}.txt"
 
         self._save_session(cfg)
         self.progress.setValue(0)
@@ -295,10 +299,9 @@ class MainWindow(QMainWindow):
 
     def _append_log(self, line: str):
         self.log.append(line)
-        if self.dst:
+        if self.log_file:
             try:
-                log_file = Path(self.dst) / "backup_log.txt"
-                with open(log_file, 'a', encoding='utf-8') as fh:
+                with open(self.log_file, 'a', encoding='utf-8') as fh:
                     fh.write(line + "\n")
             except Exception:
                 pass
