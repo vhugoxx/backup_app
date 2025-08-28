@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import Callable, Iterable, Iterator
 
 ARCH_MAP = {
     "zip": {".zip"},
@@ -13,19 +13,32 @@ def scan(
     extensions: Iterable[str],
     recursive: bool = True,
     archives: bool = False,
-    arch_types: Iterable[str] | None = None
+    arch_types: Iterable[str] | None = None,
+    log_cb: Callable[[str], None] | None = None,
+    treat_missing_as_warning: bool = False,
 ) -> Iterator[Path]:
     exts = {e.lower().lstrip(".") for e in extensions}
     arch_exts = set().union(*[ARCH_MAP.get(a, set()) for a in arch_types or []])
 
+    if not root.exists():
+        msg = f"⚠️  Pasta não encontrada: {root}"
+        if treat_missing_as_warning:
+            if log_cb:
+                log_cb(msg)
+            else:
+                print(msg)
+            return
+        raise FileNotFoundError(msg)
+
     if not recursive:
-        yield from _scan_dir(root, exts, archives, arch_exts)
+        yield from _scan_dir(root, exts, archives, arch_exts, log_cb)
         return
 
-    for sub in _walk_dir(root):
-        yield from _scan_dir(sub, exts, archives, arch_exts)
+    for sub in _walk_dir(root, log_cb):
+        yield from _scan_dir(sub, exts, archives, arch_exts, log_cb)
 
-def _walk_dir(root: Path):
+
+def _walk_dir(root: Path, log_cb: Callable[[str], None] | None = None):
     # Caminha recursivamente, ignora erros ao entrar em subpastas
     stack = [root]
     while stack:
@@ -36,9 +49,14 @@ def _walk_dir(root: Path):
                 if entry.is_dir():
                     stack.append(entry)
         except Exception as e:
-            print(f"⚠️  Erro ao entrar em {curr}: {e}")
+            msg = f"⚠️  Erro ao entrar em {curr}: {e}"
+            if log_cb:
+                log_cb(msg)
+            else:
+                print(msg)
 
-def _scan_dir(src: Path, exts, archives, arch_exts):
+
+def _scan_dir(src: Path, exts, archives, arch_exts, log_cb: Callable[[str], None] | None = None):
     try:
         for entry in src.iterdir():
             try:
@@ -49,6 +67,14 @@ def _scan_dir(src: Path, exts, archives, arch_exts):
                     elif archives and suf in arch_exts:
                         yield entry
             except Exception as e:
-                print(f"⚠️  Erro ao processar {entry}: {e}")
+                msg = f"⚠️  Erro ao processar {entry}: {e}"
+                if log_cb:
+                    log_cb(msg)
+                else:
+                    print(msg)
     except Exception as e:
-        print(f"⚠️  Erro ao listar {src}: {e}")
+        msg = f"⚠️  Erro ao listar {src}: {e}"
+        if log_cb:
+            log_cb(msg)
+        else:
+            print(msg)

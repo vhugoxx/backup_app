@@ -97,7 +97,7 @@ def copy_selected(
             _emit(log_cb, "ℹ️ VSS não disponível neste sistema; a continuar sem VSS.")
 
     def scan_source() -> Iterable[Path]:
-        return scan(base_src, extensions, recursive, log_cb=log_cb)
+        return scan(root=base_src, extensions=extensions, recursive=recursive, log_cb=log_cb)
 
     try:
         # --- Fase 1: scan + cópia de ficheiros normais ---
@@ -137,7 +137,13 @@ def copy_selected(
         # --- Fase 2: processar arquivos (zip/rar/7z/tar) se pedido ---
         if include_archives:
             _emit(log_cb, "— A procurar dentro de ficheiros compactados…")
-            for path in scan(base_src, archive_types or set(), recursive, log_cb=log_cb, treat_missing_as_warning=True):
+            for path in scan(
+                root=base_src,
+                extensions=archive_types or set(),
+                recursive=recursive,
+                log_cb=log_cb,
+                treat_missing_as_warning=True,
+            ):
                 if stop_flag():
                     break
                 if not is_archive(path, archive_types):
