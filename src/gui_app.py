@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from datetime import datetime
 from typing import Dict, Set
 
 from PySide6.QtCore import QObject, QThread, Signal, Qt, QEvent, QSize
@@ -67,6 +68,8 @@ class MainWindow(QMainWindow):
 
         self._thread: QThread | None = None
         self._worker: Worker | None = None
+        self.dst: str | None = None
+        self.log_file: Path | None = None
 
         self._build_ui()
         self._restore_session()
@@ -261,6 +264,9 @@ class MainWindow(QMainWindow):
             use_vss=self.chk_vss.isChecked(),
         )
 
+        self.dst = cfg["dst"]
+        self.log_file = Path(self.dst) / f"backup_log_{datetime.now():%Y%m%d_%H%M%S}.txt"
+
         self._save_session(cfg)
         self.progress.setValue(0)
         self.log.clear()
@@ -292,6 +298,12 @@ class MainWindow(QMainWindow):
 
     def _append_log(self, line: str):
         self.log.append(line)
+        if self.log_file:
+            try:
+                with open(self.log_file, 'a', encoding='utf-8') as fh:
+                    fh.write(line + "\n")
+            except Exception:
+                pass
 
     def _on_finished(self, stats: dict):
         # mostrar resumo
