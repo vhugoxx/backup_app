@@ -67,6 +67,7 @@ class MainWindow(QMainWindow):
 
         self._thread: QThread | None = None
         self._worker: Worker | None = None
+        self.dst: str | None = None
 
         self._build_ui()
         self._restore_session()
@@ -261,6 +262,8 @@ class MainWindow(QMainWindow):
             use_vss=self.chk_vss.isChecked(),
         )
 
+        self.dst = cfg["dst"]
+
         self._save_session(cfg)
         self.progress.setValue(0)
         self.log.clear()
@@ -292,6 +295,13 @@ class MainWindow(QMainWindow):
 
     def _append_log(self, line: str):
         self.log.append(line)
+        if self.dst:
+            try:
+                log_file = Path(self.dst) / "backup_log.txt"
+                with open(log_file, 'a', encoding='utf-8') as fh:
+                    fh.write(line + "\n")
+            except Exception:
+                pass
 
     def _on_finished(self, stats: dict):
         # mostrar resumo
