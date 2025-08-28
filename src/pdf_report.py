@@ -3,7 +3,10 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Dict
+
 import datetime
+=======
+
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -12,7 +15,10 @@ from reportlab.pdfgen import canvas
 def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
     """Gera um relatório PDF com as estatísticas do backup.
 
+
     O ficheiro é guardado com o nome ``backup_relatorio_<data>_<hora>.pdf``.
+=======
+
     Parameters
     ----------
     stats: Dict
@@ -27,8 +33,11 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
     """
     destino = Path(destino)
     destino.mkdir(parents=True, exist_ok=True)
+
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     pdf_path = destino / f"backup_relatorio_{timestamp}.pdf"
+=======
+
 
     c = canvas.Canvas(str(pdf_path), pagesize=A4)
     width, height = A4
