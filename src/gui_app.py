@@ -70,6 +70,7 @@ class MainWindow(QMainWindow):
         self._worker: Worker | None = None
         self.dst: str | None = None
         self.log_file: Path | None = None
+        self._stats: Dict | None = None
 
         self._build_ui()
         self._restore_session()
@@ -274,6 +275,7 @@ class MainWindow(QMainWindow):
         self.btn_start.setEnabled(False)
         self.btn_cancel.setEnabled(True)
         self.btn_pdf.setEnabled(False)
+        self._stats = None
 
         # arranque da thread
         self._thread = QThread(self)
@@ -322,10 +324,26 @@ class MainWindow(QMainWindow):
         self.btn_pdf.setEnabled(True)
         self._worker = None
         self._thread = None
+        self._stats = stats
 
     def _on_pdf(self):
-        # delega para o gerador já existente, se tiveres um; por agora só mensagem
-        QMessageBox.information(self, "PDF", "Gerador de PDF em desenvolvimento 🙂")
+        if not self._stats:
+            QMessageBox.warning(self, "PDF", "Sem dados para gerar relatório.")
+            return
+        try:
+            from src.pdf_report import gerar_relatorio_pdf
+            pdf_path = gerar_relatorio_pdf(self._stats, self.dst_edit.text().strip())
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Falha ao gerar relatório: {e}")
+            return
+
+        QMessageBox.information(self, "PDF", f"Relatório criado em:\n{pdf_path}")
+        try:
+            from PySide6.QtGui import QDesktopServices
+            from PySide6.QtCore import QUrl
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(pdf_path.parent)))
+        except Exception:
+            pass
 
     # ---------- sessão (tamanho/posições/cfg) ----------
     def _save_session(self, cfg: Dict):
