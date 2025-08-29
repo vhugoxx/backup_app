@@ -35,9 +35,24 @@ def _assert_admin_or_exit() -> None:
         sys.exit(1)
 
 
+def _iniciar_vss() -> None:
+    """Configura e inicia o serviço VSS no Windows, se disponível."""
+    if sys.platform != "win32":
+        return
+
+    try:
+        import subprocess
+
+        subprocess.run(["sc", "config", "vss", "start=", "auto"], check=True)
+        subprocess.run(["net", "start", "vss"], check=True)
+    except Exception as exc:
+        print(f"Falha ao iniciar o serviço VSS: {exc}", file=sys.stderr)
+
+
 if __name__ == "__main__":
     # Bloqueia execução sem privilégios
     _assert_admin_or_exit()
+    _iniciar_vss()
 
     # --- Só a partir daqui importamos módulos que podem ter side-effects ---
     PROJECT_ROOT = Path(__file__).parent
