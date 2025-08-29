@@ -26,6 +26,47 @@ def _run(cmd: list[str]) -> str:
         return exc.output or ""
 
 
+def check_vss_status(drive_letter: str = "D:") -> tuple[bool, str]:
+    """Verifica pré-requisitos do VSS para um dado volume.
+
+    Devolve um par (ok, mensagem).
+    """
+    # 1) Privilégios de administrador
+    try:
+        import ctypes
+        if not bool(ctypes.windll.shell32.IsUserAnAdmin()):
+            return False, "Sem privilégios de administrador."
+    except Exception:
+        return False, "Não foi possível verificar privilégios (provável: não é Windows/sem ctypes)."
+
+    # 2) Serviço VSS
+    r = subprocess.run(["sc", "query", "vss"], capture_output=True, text=True, shell=False)
+    out = (r.stdout or "") + (r.stderr or "")
+    if "STATE" not in out:
+        return False, "Serviço VSS indisponível."
+    if "STOPPED" in out:
+        return False, "Serviço VSS desativado."
+    if "RUNNING" not in out:
+        return False, "Serviço VSS em estado desconhecido."
+
+    # 3) Volume elegível
+    r = subprocess.run(["vssadmin", "list", "volumes"], capture_output=True, text=True, shell=False)
+    if drive_letter.rstrip("\\") not in (r.stdout or ""):
+        return False, f"Volume {drive_letter} não elegível para VSS."
+
+    # 4) Sistema de ficheiros NTFS?
+    r = subprocess.run(["fsutil", "fsinfo", "volumeinfo", drive_letter], capture_output=True, text=True, shell=False)
+    if "File System Name" in (r.stdout or ""):
+        for line in r.stdout.splitlines():
+            if "File System Name" in line:
+                fs = line.split(":", 1)[1].strip()
+                if fs.upper() != "NTFS":
+                    return False, f"Volume {drive_letter} não suportado por VSS (FS={fs})."
+                break
+
+    return True, "VSS OK (admin, serviço ativo, volume elegível NTFS)."
+
+
 def create_snapshot(drive_letter: str, log_cb=None) -> Optional[VssSnapshot]:
     """
     Tenta criar um snapshot VSS do volume indicado (ex: 'D:').
