@@ -23,7 +23,8 @@ SESSION_FILE = DATA_DIR / ".session.json"
 
 # --- worker -------------------------------------------------------------------
 class Worker(QObject):
-    progress = Signal(int)        # incremento (1 por ficheiro)
+    total    = Signal(int)        # valor máximo da barra de progresso
+    progress = Signal(int)        # progresso cumulativo
     log      = Signal(str)
     finished = Signal(dict)       # stats no fim
 
@@ -38,19 +39,55 @@ class Worker(QObject):
     def run(self):
         """Executa num QThread."""
         from src.core.copier import copy_selected  # import tardio para arrancar mais depressa
+        from src.core.scanner import scan
+        from src.core.extractor import iterate_archive, is_archive
         from datetime import datetime
+        from pathlib import Path
 
         stats = {}
         start = datetime.now()
         self.log.emit(f"🕒 Início: {start.strftime('%Y-%m-%d %H:%M:%S')}")
         try:
-            copy_selected(
-                **self.cfg,
-                progress_cb=self.progress.emit,
-                log_cb=self.log.emit,
-                stop_flag=lambda: self._stop,
-                stats=stats
-            )
+            # pré-scan para determinar o total de itens
+            base_src = Path(self.cfg["src"])
+            total = 0
+            for path in scan(
+                root=base_src,
+                extensions=self.cfg["extensions"],
+                recursive=self.cfg.get("recursive", True),
+                log_cb=None,
+            ):
+                if self._stop:
+                    break
+                total += 1
+
+            if self.cfg.get("include_archives") and not self._stop:
+                for arc in scan(
+                    root=base_src,
+                    extensions=self.cfg.get("archive_types", set()),
+                    recursive=self.cfg.get("recursive", True),
+                    log_cb=None,
+                ):
+                    if self._stop:
+                        break
+                    if not is_archive(arc, self.cfg.get("archive_types")):
+                        continue
+                    try:
+                        for _ in iterate_archive(arc, self.cfg["extensions"]):
+                            total += 1
+                    except Exception:
+                        continue
+
+            self.total.emit(total)
+
+            if not self._stop:
+                copy_selected(
+                    **self.cfg,
+                    progress_cb=self.progress.emit,
+                    log_cb=self.log.emit,
+                    stop_flag=lambda: self._stop,
+                    stats=stats,
+                )
         except Exception as e:
             self.log.emit(f"❌ Erro: {e}")
         finally:
@@ -287,6 +324,7 @@ class MainWindow(QMainWindow):
         self._worker = Worker(cfg)
         self._worker.moveToThread(self._thread)
         self._thread.started.connect(self._worker.run)
+        self._worker.total.connect(self._on_total)
         self._worker.progress.connect(self._on_progress)
         self._worker.log.connect(self._append_log)
         self._worker.finished.connect(self._on_finished)
@@ -301,8 +339,11 @@ class MainWindow(QMainWindow):
             self._worker.cancel()
             self.btn_cancel.setEnabled(False)  # evita cliques múltiplos
 
-    def _on_progress(self, inc: int):
-        self.progress.setValue(self.progress.value() + inc)
+    def _on_total(self, total: int):
+        self.progress.setMaximum(total)
+
+    def _on_progress(self, val: int):
+        self.progress.setValue(val)
 
     def _append_log(self, line: str):
         self.log.append(line)
