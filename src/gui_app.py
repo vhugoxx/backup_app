@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import sys
+import os
 from pathlib import Path
 from typing import Dict, Set
 from datetime import datetime
@@ -297,6 +298,18 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Info", "Seleciona pelo menos uma extensão.")
             return
 
+        use_vss = self.chk_vss.isChecked()
+        if use_vss:
+            if os.name != "nt":
+                QMessageBox.warning(self, "VSS", "VSS apenas disponível no Windows.")
+                return
+            drive = Path(src).drive or (src[:2] if ":" in src else "")
+            from src.core.windows_vss import check_vss_status
+            ok, motivo = check_vss_status(drive)
+            if not ok:
+                QMessageBox.warning(self, "VSS indisponível", motivo)
+                return
+
         cfg = dict(
             src=src,
             dst=dst,
@@ -305,7 +318,7 @@ class MainWindow(QMainWindow):
             preserve_structure=self.chk_preserve.isChecked(),
             include_archives=self.chk_archives.isChecked(),
             archive_types=self._archive_types(),
-            use_vss=self.chk_vss.isChecked(),
+            use_vss=use_vss,
         )
 
         self.dst = cfg["dst"]
