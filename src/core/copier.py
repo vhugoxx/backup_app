@@ -9,6 +9,7 @@ from typing import Callable, Iterable, Optional
 from .windows_vss import create_snapshot, delete_snapshot, VssSnapshot
 from .extractor import is_archive, iterate_archive
 from .scanner import scan
+from .hasher import file_hash
 
 
 def _emit(cb: Optional[Callable[[str], None]], msg: str) -> None:
@@ -47,6 +48,18 @@ def _dst_from_src(src: Path, base_src: Path, base_dst: Path, preserve_structure:
         path = path / part
     filename = rel_parts[-1] if rel_parts else src.name
     return path / filename
+
+
+def _resolve_conflict(path: Path) -> Path:
+    """Gera um caminho único caso o destino já exista."""
+    base = path.stem
+    suffix = path.suffix
+    counter = 1
+    new_path = path
+    while new_path.exists():
+        new_path = path.with_name(f"{base}_{counter}{suffix}")
+        counter += 1
+    return new_path
 
 
 def copy_selected(
@@ -121,24 +134,38 @@ def copy_selected(
             ext_folder = path.suffix.lstrip(".").lower() or "_sem_ext"
             dst_path = _dst_from_src(path, base_src, base_dst, preserve_structure, ext_folder)
             try:
-                _ensure_dir(dst_path)
-                shutil.copy2(path, dst_path)
-                try:
-                    with open(dst_path, "rb") as fh:
-                        fh.flush()
-                        os.fsync(fh.fileno())
-                except Exception:
-                    pass
-                stats["files_copied"] += 1
-                copied_mb = 0.0
-                try:
-                    copied_mb = (dst_path.stat().st_size or 0) / (1024 * 1024)
-                    stats["mb_copied"] += copied_mb
-                except Exception:
-                    pass
-                stats["ext_counts"][ext_folder] = stats["ext_counts"].get(ext_folder, 0) + 1
-                stats["ext_sizes"][ext_folder] = stats["ext_sizes"].get(ext_folder, 0.0) + copied_mb
-                _emit(log_cb, f"✔ Copiado: {path} -> {dst_path}")
+                copy_this = True
+                if dst_path.exists():
+                    try:
+                        if file_hash(path) == file_hash(dst_path):
+                            _emit(log_cb, f"⚖️  Já existe igual: {dst_path}")
+                            copy_this = False
+                        else:
+                            dst_path = _resolve_conflict(dst_path)
+                            _emit(log_cb, f"➕  Ficheiro semelhante, a guardar como {dst_path.name}")
+                    except Exception as e:
+                        _emit(log_cb, f"❌ Erro ao comparar {path} com {dst_path}: {e}")
+                        dst_path = _resolve_conflict(dst_path)
+
+                if copy_this:
+                    _ensure_dir(dst_path)
+                    shutil.copy2(path, dst_path)
+                    try:
+                        with open(dst_path, "rb") as fh:
+                            fh.flush()
+                            os.fsync(fh.fileno())
+                    except Exception:
+                        pass
+                    stats["files_copied"] += 1
+                    copied_mb = 0.0
+                    try:
+                        copied_mb = (dst_path.stat().st_size or 0) / (1024 * 1024)
+                        stats["mb_copied"] += copied_mb
+                    except Exception:
+                        pass
+                    stats["ext_counts"][ext_folder] = stats["ext_counts"].get(ext_folder, 0) + 1
+                    stats["ext_sizes"][ext_folder] = stats["ext_sizes"].get(ext_folder, 0.0) + copied_mb
+                    _emit(log_cb, f"✔ Copiado: {path} -> {dst_path}")
             except PermissionError as e:
                 stats["files_denied"] += 1
                 _emit(log_cb, f"⚠️  Sem acesso: {path} ({e})")
