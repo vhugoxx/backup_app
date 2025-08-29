@@ -45,12 +45,19 @@ def check_vss_status(drive_letter: str = "D:") -> tuple[bool, str]:
     if "STATE" not in out:
         return False, "Serviço VSS indisponível."
 
+
     # O serviço pode estar parado (STOPPED) e ainda assim funcionar sob demanda.
     # Apenas falhamos se estiver configurado como desativado.
     r_cfg = subprocess.run(["sc", "qc", "vss"], capture_output=True, text=True, shell=False)
     out_cfg = (r_cfg.stdout or "") + (r_cfg.stderr or "")
     if "DISABLED" in out_cfg.upper():
         return False, "Serviço VSS desativado."
+
+    if "STOPPED" in out:
+        return False, "Serviço VSS desativado."
+    if "RUNNING" not in out:
+        return False, "Serviço VSS em estado desconhecido."
+
 
     # 3) Volume elegível
     r = subprocess.run(["vssadmin", "list", "volumes"], capture_output=True, text=True, shell=False)
@@ -67,7 +74,11 @@ def check_vss_status(drive_letter: str = "D:") -> tuple[bool, str]:
                     return False, f"Volume {drive_letter} não suportado por VSS (FS={fs})."
                 break
 
+
     return True, "VSS OK (admin, serviço disponível, volume elegível NTFS)."
+
+    return True, "VSS OK (admin, serviço ativo, volume elegível NTFS)."
+
 
 
 def create_snapshot(drive_letter: str, log_cb=None) -> Optional[VssSnapshot]:
