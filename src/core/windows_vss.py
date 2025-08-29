@@ -26,6 +26,50 @@ def _run(cmd: list[str]) -> str:
         return exc.output or ""
 
 
+def check_vss_status(drive_letter: str = "D:") -> tuple[bool, str]:
+    """Verifica pré-requisitos do VSS para um dado volume.
+
+    Devolve um par (ok, mensagem).
+    """
+    # 1) Privilégios de administrador
+    try:
+        import ctypes
+        if not bool(ctypes.windll.shell32.IsUserAnAdmin()):
+            return False, "Sem privilégios de administrador."
+    except Exception:
+        return False, "Não foi possível verificar privilégios (provável: não é Windows/sem ctypes)."
+
+    # 2) Serviço VSS
+    r = subprocess.run(["sc", "query", "vss"], capture_output=True, text=True, shell=False)
+    out = (r.stdout or "") + (r.stderr or "")
+    if "STATE" not in out:
+        return False, "Serviço VSS indisponível."
+
+    # O serviço pode estar parado (STOPPED) e ainda assim funcionar sob demanda.
+    # Apenas falhamos se estiver configurado como desativado.
+    r_cfg = subprocess.run(["sc", "qc", "vss"], capture_output=True, text=True, shell=False)
+    out_cfg = (r_cfg.stdout or "") + (r_cfg.stderr or "")
+    if "DISABLED" in out_cfg.upper():
+        return False, "Serviço VSS desativado."
+
+    # 3) Volume elegível
+    r = subprocess.run(["vssadmin", "list", "volumes"], capture_output=True, text=True, shell=False)
+    if drive_letter.rstrip("\\") not in (r.stdout or ""):
+        return False, f"Volume {drive_letter} não elegível para VSS."
+
+    # 4) Sistema de ficheiros NTFS?
+    r = subprocess.run(["fsutil", "fsinfo", "volumeinfo", drive_letter], capture_output=True, text=True, shell=False)
+    if "File System Name" in (r.stdout or ""):
+        for line in r.stdout.splitlines():
+            if "File System Name" in line:
+                fs = line.split(":", 1)[1].strip()
+                if fs.upper() != "NTFS":
+                    return False, f"Volume {drive_letter} não suportado por VSS (FS={fs})."
+                break
+
+    return True, "VSS OK (admin, serviço disponível, volume elegível NTFS)."
+
+
 def create_snapshot(drive_letter: str, log_cb=None) -> Optional[VssSnapshot]:
     """
     Tenta criar um snapshot VSS do volume indicado (ex: 'D:').
