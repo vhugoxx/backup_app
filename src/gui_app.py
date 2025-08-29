@@ -119,6 +119,7 @@ class MainWindow(QMainWindow):
         self.log_file: Path | None = None
         self._stats: Dict | None = None
         self._start_time: datetime | None = None
+
         self._total_items: int = 0
 
         self._build_ui()
@@ -195,6 +196,7 @@ class MainWindow(QMainWindow):
         self.tree.itemChanged.connect(self._on_tree_item_changed)
 
         # barra progresso + log
+
         self.progress = QProgressBar(self)
         self.progress.setValue(0)
         self.progress.setFixedHeight(30)
@@ -207,6 +209,17 @@ class MainWindow(QMainWindow):
 
         self.log = QTextEdit(self)
         self.log.setReadOnly(True)
+
+        self.progress = QProgressBar(self); self.progress.setValue(0)
+        self.progress.setFixedHeight(30)
+        grid.addWidget(self.progress, row, 0, 1, 3); row += 1
+
+        self.time_label = QLabel("Tempo total previsto: --:--:--\nTempo restante: --:--:--")
+        self.time_label.setAlignment(Qt.AlignCenter)
+        grid.addWidget(self.time_label, row, 0, 1, 3); row += 1
+
+        self.log = QTextEdit(self); self.log.setReadOnly(True)
+
         self.log.setPlaceholderText("Pronto.")
         grid.addWidget(self.log, row, 0, 1, 3)
         row += 1
@@ -298,11 +311,19 @@ class MainWindow(QMainWindow):
         if self.chk_7z.isChecked():  s.add("7z")
         return s
 
+
     def _format_hms(self, seconds: float) -> str:
         secs = max(0, int(seconds))
         h = secs // 3600
         m = (secs % 3600) // 60
         s = secs % 60
+
+    def _format_time(self, seconds: float) -> str:
+        seconds = max(0, int(seconds))
+        h = seconds // 3600
+        m = (seconds % 3600) // 60
+        s = seconds % 60
+
         return f"{h:02d}:{m:02d}:{s:02d}"
 
     def _on_start(self):
@@ -344,6 +365,8 @@ class MainWindow(QMainWindow):
         self.log_file = Path(self.dst) / f"backup_log_{now}.txt"
 
         self._save_session(cfg)
+        self._start_time = datetime.now()
+        self.time_label.setText("Tempo total previsto: --:--:--\nTempo restante: --:--:--")
         self.progress.setValue(0)
         self.log.clear()
         self.btn_start.setEnabled(False)
@@ -378,6 +401,7 @@ class MainWindow(QMainWindow):
 
     def _on_progress(self, val: int):
         self.progress.setValue(val)
+
         if self._start_time and self._total_items:
             elapsed = (datetime.now() - self._start_time).total_seconds()
             if val > 0:
@@ -386,6 +410,17 @@ class MainWindow(QMainWindow):
                 self.time_info.setText(
                     f"Tempo total: {self._format_hms(total_est)}  |  Restante: {self._format_hms(remaining)}"
                 )
+
+        max_val = self.progress.maximum()
+        if self._start_time and val > 0 and max_val > 0:
+            elapsed = datetime.now() - self._start_time
+            total_est = elapsed.total_seconds() * max_val / val
+            remaining = total_est - elapsed.total_seconds()
+            self.time_label.setText(
+                f"Tempo total previsto: {self._format_time(total_est)}\n"
+                f"Tempo restante: {self._format_time(remaining)}"
+            )
+
 
     def _append_log(self, line: str):
         self.log.append(line)
@@ -412,11 +447,20 @@ class MainWindow(QMainWindow):
         self._worker = None
         self._thread = None
         self._stats = stats
+
         self.time_info.setText(
             f"Tempo total: {self._format_hms(stats.get('duration', 0))}  |  Restante: 00:00:00"
         )
         self._start_time = None
         self._total_items = 0
+
+        self._start_time = None
+        duration = stats.get('duration')
+        if duration is not None:
+            self.time_label.setText(
+                f"Tempo total: {self._format_time(duration)}\nTempo restante: 00:00:00"
+            )
+
         self._on_pdf()
 
     def _on_pdf(self):
