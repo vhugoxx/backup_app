@@ -102,6 +102,7 @@ def copy_selected(
         return scan(root=base_src, extensions=extensions, recursive=recursive, log_cb=log_cb)
 
     try:
+        processed = 0
         # --- Fase 1: scan + cópia de ficheiros normais ---
         for path in scan_source():
             if stop_flag():
@@ -122,6 +123,12 @@ def copy_selected(
             try:
                 _ensure_dir(dst_path)
                 shutil.copy2(path, dst_path)
+                try:
+                    with open(dst_path, "rb") as fh:
+                        fh.flush()
+                        os.fsync(fh.fileno())
+                except Exception:
+                    pass
                 stats["files_copied"] += 1
                 copied_mb = 0.0
                 try:
@@ -138,7 +145,8 @@ def copy_selected(
             except Exception as e:
                 _emit(log_cb, f"❌ Erro ao copiar {path}: {e}")
 
-            _progress(progress_cb, 1)
+            processed += 1
+            _progress(progress_cb, processed)
 
         # --- Fase 2: processar arquivos (zip/rar/7z/tar) se pedido ---
         if include_archives:
@@ -168,6 +176,11 @@ def copy_selected(
                         _ensure_dir(dst_path)
                         with open(dst_path, "wb") as fh:
                             shutil.copyfileobj(stream, fh)
+                            try:
+                                fh.flush()
+                                os.fsync(fh.fileno())
+                            except Exception:
+                                pass
                         stats["files_copied"] += 1
                         copied_mb = 0.0
                         try:
@@ -178,7 +191,8 @@ def copy_selected(
                         stats["ext_counts"][inner_ext] = stats["ext_counts"].get(inner_ext, 0) + 1
                         stats["ext_sizes"][inner_ext] = stats["ext_sizes"].get(inner_ext, 0.0) + copied_mb
                         _emit(log_cb, f"✔ Extraído: {path}!{inner_name} -> {dst_path}")
-                        _progress(progress_cb, 1)
+                        processed += 1
+                        _progress(progress_cb, processed)
                 except Exception as e:
                     _emit(log_cb, f"❌ Erro ao extrair {path}: {e}")
     finally:
