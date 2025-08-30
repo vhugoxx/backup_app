@@ -64,6 +64,16 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
 
     c.setFont("Helvetica", 12)
 
+    def _format_size(mb: float) -> str:
+        if mb >= 1024 ** 2:
+            return f"{mb / (1024 ** 2):.2f} TB"
+        if mb >= 1024:
+            return f"{mb / 1024:.2f} GB"
+        return f"{mb:.2f} MB"
+
+    def _format_duration(seconds: float) -> str:
+        return str(datetime.timedelta(seconds=int(seconds)))
+
     # Tempos
     inicio = stats.get("start_time")
     fim = stats.get("end_time")
@@ -80,6 +90,14 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
             pass
 
     vss = stats.get("vss", {})
+
+    if vss.get("usado"):
+        vss_line = "Acesso VSS        : Sucesso"
+    else:
+        motivo = vss.get("motivo", "")
+        vss_line = f"Acesso VSS        : Falha - {motivo}"
+
+
     linhas = [
         f"Início              : {inicio}",
         f"Fim                 : {fim}",
@@ -88,11 +106,17 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
         f"Ficheiros encontrados: {stats.get('files_found', 0)}",
         f"Ficheiros copiados  : {stats.get('files_copied', 0)}",
         f"Sem acesso          : {stats.get('files_denied', 0)}",
+
+        f"Dados analisados    : {_format_size(stats.get('mb_scanned', 0.0))}",
+        f"Dados copiados      : {_format_size(stats.get('mb_copied', 0.0))}",
+        vss_line,
+
         f"Tamanho analisado   : {_format_size(stats.get('mb_scanned', 0.0))}",
         f"Tamanho copiado     : {_format_size(stats.get('mb_copied', 0.0))}",
         f"VSS solicitado      : {'Sim' if vss.get('requested') else 'Não'}",
         (f"VSS sucesso         : {'Sim' if vss.get('success') else 'Não'}" if vss.get('requested') else None),
         (f"Motivo falha VSS    : {vss.get('reason')}" if vss.get('requested') and not vss.get('success') and vss.get('reason') else None),
+
     ]
     for linha in linhas:
         if linha is not None:
@@ -112,9 +136,17 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
         for ext in sorted(ext_counts):
             count = ext_counts[ext]
             size = _format_size(ext_sizes.get(ext, 0.0))
+
+            from_arch = ext_arch.get(ext, 0)
+            linha = f".{ext}: {count} ficheiros ({size})"
+            if from_arch:
+                linha += f" [{from_arch} de ficheiros compactados]"
+            c.drawString(60, y, linha)
+
             arch = ext_arch.get(ext, 0)
             extra = f" [de compactados: {arch}]" if arch else ""
             c.drawString(60, y, f".{ext}: {count} ficheiros ({size}){extra}")
+
             y -= 20
             if y < 50:
                 c.showPage()
