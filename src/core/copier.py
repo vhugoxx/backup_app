@@ -94,11 +94,13 @@ def copy_selected(
         mb_copied=0.0,
         ext_counts={},
         ext_sizes={},
-
-        vss={"usado": False, "motivo": "não solicitado"},
-
-        vss={"requested": use_vss, "success": False, "reason": None},
-
+        vss={
+            "usado": False,
+            "motivo": "não solicitado",
+            "requested": use_vss,
+            "success": False,
+            "reason": None,
+        },
     )
 
     if stop_flag is None:
