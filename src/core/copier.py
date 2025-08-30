@@ -6,7 +6,7 @@ import shutil
 from pathlib import Path
 from typing import Callable, Iterable, Optional
 
-from .windows_vss import create_snapshot, delete_snapshot, VssSnapshot
+from .windows_vss import create_snapshot, delete_snapshot, VssSnapshot, check_vss_status
 from .extractor import is_archive, iterate_archive
 from .scanner import scan
 from .hasher import file_hash
@@ -94,6 +94,8 @@ def copy_selected(
         mb_copied=0.0,
         ext_counts={},
         ext_sizes={},
+        ext_from_archives={},
+        vss={"usado": False, "motivo": "não solicitado"},
     )
 
     if stop_flag is None:
@@ -101,15 +103,24 @@ def copy_selected(
 
     # --- Tentar VSS (Windows) ---
     snap: Optional[VssSnapshot] = None
-    if use_vss and os.name == "nt":
-        # extrai letra da drive, p.ex. 'D:'
-        drive = base_src.drive or (str(base_src)[:2] if ":" in str(base_src) else "")
-        snap = create_snapshot(drive, log_cb=log_cb)
-        if not snap:
-            _emit(log_cb, "➡️  A continuar sem VSS.")
-    else:
-        if use_vss:
-            _emit(log_cb, "ℹ️ VSS não disponível neste sistema; a continuar sem VSS.")
+    if use_vss:
+        if os.name == "nt":
+            drive = base_src.drive or (str(base_src)[:2] if ":" in str(base_src) else "")
+            ok, msg = check_vss_status(drive)
+            if not ok:
+                _emit(log_cb, f"⚠️ VSS indisponível: {msg}")
+                stats["vss"] = {"usado": False, "motivo": msg}
+            else:
+                snap = create_snapshot(drive, log_cb=log_cb)
+                if snap:
+                    stats["vss"] = {"usado": True, "motivo": ""}
+                else:
+                    stats["vss"] = {"usado": False, "motivo": "Falha ao criar snapshot"}
+                    _emit(log_cb, "➡️  A continuar sem VSS.")
+        else:
+            msg = "VSS não disponível neste sistema"
+            _emit(log_cb, f"ℹ️ {msg}; a continuar sem VSS.")
+            stats["vss"] = {"usado": False, "motivo": msg}
 
     def scan_source() -> Iterable[Path]:
         return scan(root=base_src, extensions=extensions, recursive=recursive, log_cb=log_cb)
@@ -191,7 +202,6 @@ def copy_selected(
                     continue
                 try:
                     for inner_name, stream in iterate_archive(path, extensions):
-                        # Monta destino: pasta = extensão do ficheiro interno
                         inner_ext = Path(inner_name).suffix.lstrip(".").lower() or "_sem_ext"
                         dst_path = _dst_from_src(
                             path.parent / inner_name,
@@ -217,6 +227,9 @@ def copy_selected(
                             pass
                         stats["ext_counts"][inner_ext] = stats["ext_counts"].get(inner_ext, 0) + 1
                         stats["ext_sizes"][inner_ext] = stats["ext_sizes"].get(inner_ext, 0.0) + copied_mb
+                        stats["ext_from_archives"][inner_ext] = (
+                            stats["ext_from_archives"].get(inner_ext, 0) + 1
+                        )
                         _emit(log_cb, f"✔ Extraído: {path}!{inner_name} -> {dst_path}")
                         processed += 1
                         _progress(progress_cb, processed)

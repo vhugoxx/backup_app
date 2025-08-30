@@ -49,6 +49,16 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
 
     c.setFont("Helvetica", 12)
 
+    def _format_size(mb: float) -> str:
+        if mb >= 1024 ** 2:
+            return f"{mb / (1024 ** 2):.2f} TB"
+        if mb >= 1024:
+            return f"{mb / 1024:.2f} GB"
+        return f"{mb:.2f} MB"
+
+    def _format_duration(seconds: float) -> str:
+        return str(datetime.timedelta(seconds=int(seconds)))
+
     # Tempos
     inicio = stats.get("start_time")
     fim = stats.get("end_time")
@@ -64,16 +74,24 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
         except Exception:
             pass
 
+    vss = stats.get("vss", {})
+    if vss.get("usado"):
+        vss_line = "Acesso VSS        : Sucesso"
+    else:
+        motivo = vss.get("motivo", "")
+        vss_line = f"Acesso VSS        : Falha - {motivo}"
+
     linhas = [
         f"Início              : {inicio}",
         f"Fim                 : {fim}",
-        f"Duração (s)         : {dur:.2f}",
+        f"Duração             : {_format_duration(dur)}",
         f"Ficheiros analisados: {stats.get('files_scanned', 0)}",
         f"Ficheiros encontrados: {stats.get('files_found', 0)}",
         f"Ficheiros copiados  : {stats.get('files_copied', 0)}",
         f"Sem acesso          : {stats.get('files_denied', 0)}",
-        f"MB analisados       : {stats.get('mb_scanned', 0.0):.2f}",
-        f"MB copiados         : {stats.get('mb_copied', 0.0):.2f}",
+        f"Dados analisados    : {_format_size(stats.get('mb_scanned', 0.0))}",
+        f"Dados copiados      : {_format_size(stats.get('mb_copied', 0.0))}",
+        vss_line,
     ]
     for linha in linhas:
         if linha is not None:
@@ -83,6 +101,7 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
     # Tipos de ficheiro
     ext_counts = stats.get("ext_counts", {})
     ext_sizes = stats.get("ext_sizes", {})
+    ext_arch = stats.get("ext_from_archives", {})
     if ext_counts:
         y -= 10
         c.setFont("Helvetica-Bold", 12)
@@ -91,8 +110,12 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
         c.setFont("Helvetica", 12)
         for ext in sorted(ext_counts):
             count = ext_counts[ext]
-            size = ext_sizes.get(ext, 0.0)
-            c.drawString(60, y, f".{ext}: {count} ficheiros ({size:.2f} MB)")
+            size = _format_size(ext_sizes.get(ext, 0.0))
+            from_arch = ext_arch.get(ext, 0)
+            linha = f".{ext}: {count} ficheiros ({size})"
+            if from_arch:
+                linha += f" [{from_arch} de ficheiros compactados]"
+            c.drawString(60, y, linha)
             y -= 20
             if y < 50:
                 c.showPage()
