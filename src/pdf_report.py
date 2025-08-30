@@ -10,6 +10,21 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
 
+def _format_duration(segundos: float) -> str:
+    total = int(segundos)
+    horas, resto = divmod(total, 3600)
+    minutos, seg = divmod(resto, 60)
+    return f"{horas:02d}h {minutos:02d}m {seg:02d}s"
+
+
+def _format_size(mb: float) -> str:
+    if mb >= 1024 * 1024:
+        return f"{mb / (1024 * 1024):.2f} TB"
+    if mb >= 1024:
+        return f"{mb / 1024:.2f} GB"
+    return f"{mb:.2f} MB"
+
+
 def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
     """Gera um relatório PDF com as estatísticas do backup.
 
@@ -64,16 +79,20 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
         except Exception:
             pass
 
+    vss = stats.get("vss", {})
     linhas = [
         f"Início              : {inicio}",
         f"Fim                 : {fim}",
-        f"Duração (s)         : {dur:.2f}",
+        f"Duração             : {_format_duration(dur)}",
         f"Ficheiros analisados: {stats.get('files_scanned', 0)}",
         f"Ficheiros encontrados: {stats.get('files_found', 0)}",
         f"Ficheiros copiados  : {stats.get('files_copied', 0)}",
         f"Sem acesso          : {stats.get('files_denied', 0)}",
-        f"MB analisados       : {stats.get('mb_scanned', 0.0):.2f}",
-        f"MB copiados         : {stats.get('mb_copied', 0.0):.2f}",
+        f"Tamanho analisado   : {_format_size(stats.get('mb_scanned', 0.0))}",
+        f"Tamanho copiado     : {_format_size(stats.get('mb_copied', 0.0))}",
+        f"VSS solicitado      : {'Sim' if vss.get('requested') else 'Não'}",
+        (f"VSS sucesso         : {'Sim' if vss.get('success') else 'Não'}" if vss.get('requested') else None),
+        (f"Motivo falha VSS    : {vss.get('reason')}" if vss.get('requested') and not vss.get('success') and vss.get('reason') else None),
     ]
     for linha in linhas:
         if linha is not None:
@@ -83,6 +102,7 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
     # Tipos de ficheiro
     ext_counts = stats.get("ext_counts", {})
     ext_sizes = stats.get("ext_sizes", {})
+    ext_arch = stats.get("ext_from_archives", {})
     if ext_counts:
         y -= 10
         c.setFont("Helvetica-Bold", 12)
@@ -91,8 +111,10 @@ def gerar_relatorio_pdf(stats: Dict, destino: str | Path) -> Path:
         c.setFont("Helvetica", 12)
         for ext in sorted(ext_counts):
             count = ext_counts[ext]
-            size = ext_sizes.get(ext, 0.0)
-            c.drawString(60, y, f".{ext}: {count} ficheiros ({size:.2f} MB)")
+            size = _format_size(ext_sizes.get(ext, 0.0))
+            arch = ext_arch.get(ext, 0)
+            extra = f" [de compactados: {arch}]" if arch else ""
+            c.drawString(60, y, f".{ext}: {count} ficheiros ({size}){extra}")
             y -= 20
             if y < 50:
                 c.showPage()
