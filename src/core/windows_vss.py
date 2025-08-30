@@ -81,15 +81,19 @@ def check_vss_status(drive_letter: str = "D:") -> tuple[bool, str]:
 
 
 
-def create_snapshot(drive_letter: str, log_cb=None) -> Optional[VssSnapshot]:
-    """
-    Tenta criar um snapshot VSS do volume indicado (ex: 'D:').
-    Em sucesso, devolve VssSnapshot. Em falha, devolve None (sem levantar exceção).
+def create_snapshot(drive_letter: str, log_cb=None) -> tuple[Optional[VssSnapshot], Optional[str]]:
+    """Tenta criar um *snapshot* VSS do volume indicado (ex.: ``'D:'``).
+
+    Returns
+    -------
+    tuple
+        ``(snapshot, erro)``. ``snapshot`` é ``None`` em falha e ``erro``
+        contém a razão textual para a falha (ou ``None`` em sucesso).
     """
     if os.name != "nt":
         if log_cb:
             log_cb("ℹ️ VSS só está disponível no Windows; a continuar sem snapshot.")
-        return None
+        return None, "Sistema não Windows"
 
     drive = drive_letter.rstrip("\\/")
     if not drive.endswith(":"):
@@ -105,17 +109,20 @@ def create_snapshot(drive_letter: str, log_cb=None) -> Optional[VssSnapshot]:
     m_vol = _VSS_VOL_RE.search(out or "")
 
     if not (m_id and m_vol):
+        msg = (
+            "Não foi possível criar snapshot VSS (sem privilégios de admin, "
+            "serviço VSS desativado ou volume não suportado)."
+        )
         if log_cb:
-            log_cb("⚠️  Não foi possível criar snapshot VSS (sem privilégios de admin, serviço VSS desativado, "
-                   "ou volume não suportado). A continuar sem VSS.")
+            log_cb(f"⚠️  {msg} A continuar sem VSS.")
             if out:
                 log_cb(out.strip())
-        return None
+        return None, msg
 
     snap = VssSnapshot(shadow_id=m_id.group(1), shadow_volume=m_vol.group(1).strip())
     if log_cb:
         log_cb(f"Snapshot criado: {snap.shadow_id} em {snap.shadow_volume}")
-    return snap
+    return snap, None
 
 
 def delete_snapshot(snap: Optional[VssSnapshot], log_cb=None) -> None:

@@ -94,6 +94,8 @@ def copy_selected(
         mb_copied=0.0,
         ext_counts={},
         ext_sizes={},
+        ext_from_archives={},
+        vss={"requested": use_vss, "success": False, "reason": None},
     )
 
     if stop_flag is None:
@@ -104,11 +106,14 @@ def copy_selected(
     if use_vss and os.name == "nt":
         # extrai letra da drive, p.ex. 'D:'
         drive = base_src.drive or (str(base_src)[:2] if ":" in str(base_src) else "")
-        snap = create_snapshot(drive, log_cb=log_cb)
+        snap, err = create_snapshot(drive, log_cb=log_cb)
+        stats["vss"]["success"] = snap is not None
+        stats["vss"]["reason"] = err
         if not snap:
             _emit(log_cb, "➡️  A continuar sem VSS.")
     else:
         if use_vss:
+            stats["vss"]["reason"] = "VSS não disponível neste sistema"
             _emit(log_cb, "ℹ️ VSS não disponível neste sistema; a continuar sem VSS.")
 
     def scan_source() -> Iterable[Path]:
@@ -217,6 +222,9 @@ def copy_selected(
                             pass
                         stats["ext_counts"][inner_ext] = stats["ext_counts"].get(inner_ext, 0) + 1
                         stats["ext_sizes"][inner_ext] = stats["ext_sizes"].get(inner_ext, 0.0) + copied_mb
+                        stats["ext_from_archives"][inner_ext] = (
+                            stats["ext_from_archives"].get(inner_ext, 0) + 1
+                        )
                         _emit(log_cb, f"✔ Extraído: {path}!{inner_name} -> {dst_path}")
                         processed += 1
                         _progress(progress_cb, processed)
