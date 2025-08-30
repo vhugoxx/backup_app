@@ -94,8 +94,11 @@ def copy_selected(
         mb_copied=0.0,
         ext_counts={},
         ext_sizes={},
-        ext_from_archives={},
+
         vss={"usado": False, "motivo": "não solicitado"},
+
+        vss={"requested": use_vss, "success": False, "reason": None},
+
     )
 
     if stop_flag is None:
@@ -103,6 +106,7 @@ def copy_selected(
 
     # --- Tentar VSS (Windows) ---
     snap: Optional[VssSnapshot] = None
+
     if use_vss:
         if os.name == "nt":
             drive = base_src.drive or (str(base_src)[:2] if ":" in str(base_src) else "")
@@ -121,6 +125,20 @@ def copy_selected(
             msg = "VSS não disponível neste sistema"
             _emit(log_cb, f"ℹ️ {msg}; a continuar sem VSS.")
             stats["vss"] = {"usado": False, "motivo": msg}
+
+    if use_vss and os.name == "nt":
+        # extrai letra da drive, p.ex. 'D:'
+        drive = base_src.drive or (str(base_src)[:2] if ":" in str(base_src) else "")
+        snap, err = create_snapshot(drive, log_cb=log_cb)
+        stats["vss"]["success"] = snap is not None
+        stats["vss"]["reason"] = err
+        if not snap:
+            _emit(log_cb, "➡️  A continuar sem VSS.")
+    else:
+        if use_vss:
+            stats["vss"]["reason"] = "VSS não disponível neste sistema"
+            _emit(log_cb, "ℹ️ VSS não disponível neste sistema; a continuar sem VSS.")
+
 
     def scan_source() -> Iterable[Path]:
         return scan(root=base_src, extensions=extensions, recursive=recursive, log_cb=log_cb)
