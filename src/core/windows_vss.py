@@ -16,6 +16,39 @@ class VssSnapshot:
 _VSS_ID_RE = re.compile(r"Shadow Copy ID:\s*({[0-9A-Fa-f\-]+})")
 _VSS_VOL_RE = re.compile(r"Shadow Copy Volume:\s*(.+)")
 
+# Regex para validar letra de drive (ex: "C:", "D:", "E:")
+_DRIVE_LETTER_RE = re.compile(r"^[A-Za-z]:$")
+
+
+def _sanitize_drive_letter(drive: str) -> str:
+    """Sanitiza e valida a letra do drive para prevenir command injection.
+    
+    Args:
+        drive: String contendo a letra do drive (ex: "C:", "D:")
+        
+    Returns:
+        String sanitizada contendo apenas a letra maiúscula e dois-pontos
+        
+    Raises:
+        ValueError: Se o formato do drive for inválido
+    """
+    # Remove espaços e barras
+    drive = drive.strip().rstrip("\\/")
+    
+    # Garante formato correto (letra + ":")
+    if len(drive) == 1 and drive.isalpha():
+        drive = drive.upper() + ":"
+    elif len(drive) == 2 and drive[0].isalpha() and drive[1] == ":":
+        drive = drive[0].upper() + ":"
+    else:
+        raise ValueError(f"Formato de drive inválido: {drive!r}. Esperado: letra seguida de ':' (ex: 'C:')")
+    
+    # Validação final com regex
+    if not _DRIVE_LETTER_RE.match(drive):
+        raise ValueError(f"Drive letter inválido após sanitização: {drive!r}")
+    
+    return drive
+
 
 def _run(cmd: list[str]) -> str:
     # Devolve stdout como string (mesmo em erro, devolve o que houver)
@@ -31,6 +64,12 @@ def check_vss_status(drive_letter: str = "D:") -> tuple[bool, str]:
 
     Devolve um par (ok, mensagem).
     """
+    # SEGURANÇA: Sanitizar drive_letter para prevenir command injection
+    try:
+        drive_letter = _sanitize_drive_letter(drive_letter)
+    except ValueError as e:
+        return False, f"Drive inválido: {e}"
+
     # 1) Privilégios de administrador
     try:
         import ctypes
@@ -77,8 +116,6 @@ def check_vss_status(drive_letter: str = "D:") -> tuple[bool, str]:
 
     return True, "VSS OK (admin, serviço disponível, volume elegível NTFS)."
 
-    return True, "VSS OK (admin, serviço ativo, volume elegível NTFS)."
-
 
 
 def create_snapshot(drive_letter: str, log_cb=None) -> tuple[Optional[VssSnapshot], Optional[str]]:
@@ -95,9 +132,14 @@ def create_snapshot(drive_letter: str, log_cb=None) -> tuple[Optional[VssSnapsho
             log_cb("ℹ️ VSS só está disponível no Windows; a continuar sem snapshot.")
         return None, "Sistema não Windows"
 
-    drive = drive_letter.rstrip("\\/")
-    if not drive.endswith(":"):
-        drive = drive + ":"
+    # SEGURANÇA: Sanitizar drive_letter para prevenir command injection
+    try:
+        drive = _sanitize_drive_letter(drive_letter)
+    except ValueError as e:
+        msg = f"Drive inválido para VSS: {e}"
+        if log_cb:
+            log_cb(f"⚠️ {msg}")
+        return None, msg
 
     # Criação
     if log_cb:

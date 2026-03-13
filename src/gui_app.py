@@ -4,9 +4,74 @@ from __future__ import annotations
 import json
 import sys
 import os
+import re
 from pathlib import Path
-from typing import Dict, Set
+from typing import Dict, Set, List, Tuple
 from datetime import datetime
+
+
+# SEGURANÇA: Regex para validar extensões de arquivo customizadas
+# Permite apenas letras, números, pontos e hífens (máximo 20 caracteres)
+_EXTENSION_REGEX = re.compile(r'^[a-zA-Z0-9][a-zA-Z0-9.\-]{0,19}$')
+
+
+def _validate_extension(ext: str) -> Tuple[bool, str]:
+    """Valida uma extensão de arquivo customizada.
+    
+    Args:
+        ext: Extensão a validar (sem o ponto inicial)
+        
+    Returns:
+        Tupla (válido, mensagem_erro). Se válido, mensagem_erro é string vazia.
+    """
+    ext = ext.strip().lstrip('.')
+    
+    if not ext:
+        return False, "Extensão vazia"
+    
+    if len(ext) > 20:
+        return False, f"Extensão muito longa ({len(ext)} caracteres, máximo 20)"
+    
+    if not _EXTENSION_REGEX.match(ext):
+        return False, f"Extensão inválida: '{ext}'. Use apenas letras, números, pontos e hífens."
+    
+    # Verificações adicionais de segurança
+    if '..' in ext:
+        return False, f"Extensão com pontos consecutivos não permitida: '{ext}'"
+    
+    if ext.startswith('.') or ext.startswith('-'):
+        return False, f"Extensão não pode começar com ponto ou hífen: '{ext}'"
+    
+    return True, ""
+
+
+def _sanitize_custom_extensions(custom_text: str) -> Tuple[Set[str], List[str]]:
+    """Sanitiza e valida extensões customizadas inseridas pelo usuário.
+    
+    Args:
+        custom_text: Texto com extensões separadas por espaço ou vírgula
+        
+    Returns:
+        Tupla (extensões_válidas, lista_de_erros)
+    """
+    valid_exts: Set[str] = set()
+    errors: List[str] = []
+    
+    # Separa por vírgula ou espaço
+    tokens = custom_text.replace(",", " ").split()
+    
+    for tok in tokens:
+        ext = tok.strip().lstrip('.')
+        if not ext:
+            continue
+            
+        is_valid, error_msg = _validate_extension(ext)
+        if is_valid:
+            valid_exts.add(ext.lower())
+        else:
+            errors.append(error_msg)
+    
+    return valid_exts, errors
 
 from PySide6.QtCore import QObject, QThread, Signal, Qt, QEvent, QSize
 from PySide6.QtGui import QAction
@@ -278,11 +343,15 @@ class MainWindow(QMainWindow):
                 recurse(item.child(i))
         for i in range(self.tree.topLevelItemCount()):
             recurse(self.tree.topLevelItem(i))
-        # custom
+        # SEGURANÇA: Validar extensões customizadas com sanitização
         custom = self.custom_edit.text().strip()
         if custom:
-            for tok in custom.replace(",", " ").split():
-                exts.add(tok.lower().lstrip("."))
+            valid_exts, errors = _sanitize_custom_extensions(custom)
+            exts.update(valid_exts)
+            # Guardar erros para mostrar ao usuário se necessário
+            self._extension_validation_errors = errors
+        else:
+            self._extension_validation_errors = []
         return exts
 
     def _archive_types(self) -> Set[str]:
@@ -307,6 +376,16 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Erro", "Indica a pasta de origem e destino.")
             return
         exts = self._collect_extensions()
+        
+        # SEGURANÇA: Mostrar erros de validação de extensões customizadas
+        if hasattr(self, '_extension_validation_errors') and self._extension_validation_errors:
+            error_list = "\n".join(f"• {e}" for e in self._extension_validation_errors)
+            QMessageBox.warning(
+                self, 
+                "Extensões Inválidas", 
+                f"Algumas extensões customizadas foram ignoradas:\n\n{error_list}"
+            )
+        
         if not exts:
             QMessageBox.information(self, "Info", "Seleciona pelo menos uma extensão.")
             return

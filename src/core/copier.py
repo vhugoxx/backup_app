@@ -10,6 +10,7 @@ from .windows_vss import create_snapshot, delete_snapshot, VssSnapshot
 from .extractor import is_archive, iterate_archive
 from .scanner import scan
 from .hasher import file_hash
+from .secure_logging import create_secure_log_callback, sanitize_log_message
 
 
 def _emit(cb: Optional[Callable[[str], None]], msg: str) -> None:
@@ -75,13 +76,23 @@ def copy_selected(
     log_cb: Optional[Callable[[str], None]] = None,
     stop_flag: Optional[Callable[[], bool]] = None,
     stats: Optional[dict] = None,
+    secure_logging: bool = True,  # SEGURANÇA: Ofuscar caminhos por padrão
 ) -> None:
     """
     Executa o backup seletivo. Se VSS falhar, continua sem VSS.
+    
+    Args:
+        secure_logging: Se True (padrão), ofusca caminhos completos nos logs
     """
     base_src = Path(src)
     base_dst = Path(dst)
     base_dst.mkdir(parents=True, exist_ok=True)
+    
+    # SEGURANÇA: Criar callback de log seguro que ofusca caminhos
+    if secure_logging and log_cb:
+        secure_log_cb = create_secure_log_callback(log_cb, base_src, base_dst)
+    else:
+        secure_log_cb = log_cb
 
     if stats is None:
         stats = {}
@@ -106,25 +117,25 @@ def copy_selected(
     if use_vss and os.name == "nt":
         # extrai letra da drive, p.ex. 'D:'
         drive = base_src.drive or (str(base_src)[:2] if ":" in str(base_src) else "")
-        snap, err = create_snapshot(drive, log_cb=log_cb)
+        snap, err = create_snapshot(drive, log_cb=secure_log_cb)
         stats["vss"]["success"] = snap is not None
         stats["vss"]["reason"] = err
         if not snap:
-            _emit(log_cb, "➡️  A continuar sem VSS.")
+            _emit(secure_log_cb, "➡️  A continuar sem VSS.")
     else:
         if use_vss:
             stats["vss"]["reason"] = "VSS não disponível neste sistema"
-            _emit(log_cb, "ℹ️ VSS não disponível neste sistema; a continuar sem VSS.")
+            _emit(secure_log_cb, "ℹ️ VSS não disponível neste sistema; a continuar sem VSS.")
 
     def scan_source() -> Iterable[Path]:
-        return scan(root=base_src, extensions=extensions, recursive=recursive, log_cb=log_cb)
+        return scan(root=base_src, extensions=extensions, recursive=recursive, log_cb=secure_log_cb)
 
     try:
         processed = 0
         # --- Fase 1: scan + cópia de ficheiros normais ---
         for path in scan_source():
             if stop_flag():
-                _emit(log_cb, "⏹️  Operação cancelada.")
+                _emit(secure_log_cb, "⏹️  Operação cancelada.")
                 break
 
             stats["files_scanned"] += 1
@@ -143,13 +154,13 @@ def copy_selected(
                 if dst_path.exists():
                     try:
                         if file_hash(path) == file_hash(dst_path):
-                            _emit(log_cb, f"⚖️  Já existe igual: {dst_path}")
+                            _emit(secure_log_cb, f"⚖️  Já existe igual: {dst_path}")
                             copy_this = False
                         else:
                             dst_path = _resolve_conflict(dst_path)
-                            _emit(log_cb, f"➕  Ficheiro semelhante, a guardar como {dst_path.name}")
+                            _emit(secure_log_cb, f"➕  Ficheiro semelhante, a guardar como {dst_path.name}")
                     except Exception as e:
-                        _emit(log_cb, f"❌ Erro ao comparar {path} com {dst_path}: {e}")
+                        _emit(secure_log_cb, f"❌ Erro ao comparar {path} com {dst_path}: {e}")
                         dst_path = _resolve_conflict(dst_path)
 
                 if copy_this:
@@ -170,24 +181,24 @@ def copy_selected(
                         pass
                     stats["ext_counts"][ext_folder] = stats["ext_counts"].get(ext_folder, 0) + 1
                     stats["ext_sizes"][ext_folder] = stats["ext_sizes"].get(ext_folder, 0.0) + copied_mb
-                    _emit(log_cb, f"✔ Copiado: {path} -> {dst_path}")
+                    _emit(secure_log_cb, f"✔ Copiado: {path} -> {dst_path}")
             except PermissionError as e:
                 stats["files_denied"] += 1
-                _emit(log_cb, f"⚠️  Sem acesso: {path} ({e})")
+                _emit(secure_log_cb, f"⚠️  Sem acesso: {path} ({e})")
             except Exception as e:
-                _emit(log_cb, f"❌ Erro ao copiar {path}: {e}")
+                _emit(secure_log_cb, f"❌ Erro ao copiar {path}: {e}")
 
             processed += 1
             _progress(progress_cb, processed)
 
         # --- Fase 2: processar arquivos (zip/rar/7z/tar) se pedido ---
         if include_archives:
-            _emit(log_cb, "— A procurar dentro de ficheiros compactados…")
+            _emit(secure_log_cb, "— A procurar dentro de ficheiros compactados…")
             for path in scan(
                 root=base_src,
                 extensions=archive_types or set(),
                 recursive=recursive,
-                log_cb=log_cb,
+                log_cb=secure_log_cb,
                 treat_missing_as_warning=True,
             ):
                 if stop_flag():
@@ -225,10 +236,10 @@ def copy_selected(
                         stats["ext_from_archives"][inner_ext] = (
                             stats["ext_from_archives"].get(inner_ext, 0) + 1
                         )
-                        _emit(log_cb, f"✔ Extraído: {path}!{inner_name} -> {dst_path}")
+                        _emit(secure_log_cb, f"✔ Extraído: {path}!{inner_name} -> {dst_path}")
                         processed += 1
                         _progress(progress_cb, processed)
                 except Exception as e:
-                    _emit(log_cb, f"❌ Erro ao extrair {path}: {e}")
+                    _emit(secure_log_cb, f"❌ Erro ao extrair {path}: {e}")
     finally:
-        delete_snapshot(snap, log_cb=log_cb)
+        delete_snapshot(snap, log_cb=secure_log_cb)
